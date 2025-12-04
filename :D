@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>你確定按得到？</title>
+<style>
+body{
+  margin:0;
+  height:100vh;
+  background:black;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Arial;
+  overflow:hidden;
+}
+
+#msg{
+  position:absolute;
+  top:15px;
+  font-size:20px;
+  color:#aaa;
+}
+
+button{
+  position:absolute;
+  padding:20px 40px;
+  font-size:26px;
+  border:none;
+  border-radius:12px;
+  background:red;
+  color:white;
+  cursor:pointer;
+  transition:0.1s;
+}
+
+.fake{
+  background:gray;
+}
+</style>
+</head>
+<body>
+
+<div id="msg">請點擊確認以繼續。</div>
+<button id="btn">確認</button>
+
+<script>
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+let count = 0;
+
+const taunts = [
+  "你是不是有點慢？",
+  "就這？",
+  "認真一點好嗎。",
+  "你真的以為你點得到？",
+  "滑鼠是不是壞了？",
+  "你已經被這個網站看穿了。",
+  "再失敗一次就破紀錄了。",
+  "你很努力，但沒有用。",
+  "你現在的表情一定很好看。",
+  "別急，你還會失敗很多次。"
+];
+
+function moveBtn(){
+  const x = Math.random()*(window.innerWidth-btn.offsetWidth);
+  const y = Math.random()*(window.innerHeight-btn.offsetHeight);
+  btn.style.left = x+"px";
+  btn.style.top = y+"px";
+}
+
+btn.addEventListener("mouseenter",()=>{
+  count++;
+  moveBtn();
+  msg.innerText = taunts[Math.floor(Math.random()*taunts.length)];
+
+  // 第5次：瞬間縮小
+  if(count===5){
+    btn.style.transform="scale(0.2)";
+    msg.innerText="欸欸太大顆了，縮小一點給你。";
+  }
+
+  // 第8次：分裂假按鈕
+  if(count===8){
+    for(let i=0;i<3;i++){
+      let fake=document.createElement("button");
+      fake.innerText="確認？";
+      fake.className="fake";
+      fake.style.left=Math.random()*window.innerWidth+"px";
+      fake.style.top=Math.random()*window.innerHeight+"px";
+      document.body.appendChild(fake);
+      fake.addEventListener("click",()=>{
+        msg.innerText="哈哈，假的。";
+        fake.remove();
+      });
+    }
+  }
+
+  // 第12次：假當機
+  if(count===12){
+    msg.innerText="系統當機中...";
+    btn.style.display="none";
+    setTimeout(()=>{
+      msg.innerText="騙你的，你還要繼續嗎？";
+      btn.style.display="block";
+    },3000);
+  }
+
+  // 第15次：假成功
+  if(count===15){
+    btn.style.left="50%";
+    btn.style.top="50%";
+    btn.style.transform="translate(-50%,-50%)";
+    msg.innerText="好啦這次真的讓你按。";
+  }
+});
+
+// 就算真的按到也是騙你
+btn.addEventListener("click",()=>{
+  document.body.innerHTML=`
+  <h1>你真的以為成功了？</h1>
+  <p>你只是完成了一次被耍的過程。</p>
+  <p>總失敗次數：${count}</p>
+  <button onclick="location.reload()">不服再來一次</button>
+  `;
+});
+</script>
+
+</body>
+</html>
