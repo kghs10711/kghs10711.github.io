@@ -1,11 +1,211 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>我的網頁</title>
-    <link rel="icon" href="jellyfish.png">
-  </head>
-  <body>
-    353535
-  </body>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>試著按按看阿:D</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "Segoe UI", sans-serif;
+        background: #111;
+        color: white;
+    }
+
+    #taunt {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 28px;
+        padding: 15px;
+        background: black;
+        color: #ff4444;
+        z-index: 1000;
+        user-select: none;
+    }
+
+    /* 真・假按鈕共用外觀 */
+    button {
+        position: absolute;
+        padding: 20px 40px;
+        font-size: 20px;
+        cursor: pointer;
+        background: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        box-shadow: 0 4px 0 #aa0000;
+        transition: transform 0.15s;
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    #loading {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: black;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-size: 24px;
+        z-index: 2000;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid #333;
+        border-top: 6px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+</head>
+
+<body>
+
+<div id="taunt">你以為你按得到？笑死 😂</div>
+
+<button id="realBtn">按我啊</button>
+
+<div id="loading">
+    <div class="spinner"></div>
+    <div>系統當機中…</div>
+</div>
+
+<script>
+const taunts = [
+    "你怎麼這麼菜阿",
+    "你在賭運氣是不是",
+    "再試一次就會成功？",
+    "欸你真的不放棄欸",
+    "亂點很開心嗎？",
+    "哈哈哈哈哈哈",
+    "滑鼠是不是開始流汗了",
+    "你以為這次會中？"
+];
+
+const tauntDiv = document.getElementById("taunt");
+const realBtn = document.getElementById("realBtn");
+const loading = document.getElementById("loading");
+
+let fakeButtons = [];
+let currentStage = 0;
+
+// 隨機位置
+function randomPos(el) {
+    el.style.left =
+        Math.random() * (window.innerWidth - el.offsetWidth) + "px";
+    el.style.top =
+        Math.random() * (window.innerHeight - el.offsetHeight - 100) + 100 + "px";
+}
+
+// ===== 階段 1：正常躲避 =====
+function stage1() {
+    clearFakes();
+    loading.style.display = "none";
+    realBtn.style.display = "block";
+    realBtn.style.transform = "scale(1)";
+    realBtn.onmouseenter = moveButton;
+    moveButton();
+}
+
+// ===== 階段 2：真假混在一起 =====
+function stage2() {
+    clearFakes();
+    loading.style.display = "none";
+    realBtn.style.display = "block";
+    realBtn.style.transform = "scale(1)";
+
+    const count = 12;
+    const realIndex = Math.floor(Math.random() * count);
+
+    for (let i = 0; i < count; i++) {
+        if (i === realIndex) continue;
+
+        const fake = document.createElement("button");
+        fake.textContent = "按我啊";
+        randomPos(fake);
+
+        fake.onclick = () => fake.remove();
+        document.body.appendChild(fake);
+        fakeButtons.push(fake);
+    }
+
+    realBtn.onmouseenter = () => {
+        clearFakes();
+        moveButton();
+    };
+
+    moveButton();
+}
+
+// ===== 階段 3：假裝當機 =====
+function stage3() {
+    clearFakes();
+    realBtn.style.display = "none";
+    loading.style.display = "flex";
+
+    setTimeout(() => {
+        loading.style.display = "none";
+        alert("騙你的啦～ 😂");
+        realBtn.style.display = "block";
+        moveButton();
+    }, 3000);
+}
+
+// ===== 階段 4：變小逃跑 =====
+function stage4() {
+    clearFakes();
+    loading.style.display = "none";
+    realBtn.style.display = "block";
+    realBtn.style.transform = "scale(0.4)";
+    realBtn.onmouseenter = moveButton;
+    moveButton();
+}
+
+// 真按鈕移動
+function moveButton() {
+    randomPos(realBtn);
+}
+
+// 清除假按鈕
+function clearFakes() {
+    fakeButtons.forEach(b => b.remove());
+    fakeButtons = [];
+}
+
+// 嘲諷文字輪換
+setInterval(() => {
+    tauntDiv.textContent =
+        taunts[Math.floor(Math.random() * taunts.length)];
+}, 1500);
+
+// ===== 每 10 秒切換一個階段 =====
+function nextStage() {
+    currentStage = (currentStage + 1) % 4;
+
+    if (currentStage === 0) stage1();
+    if (currentStage === 1) stage2();
+    if (currentStage === 2) stage3();
+    if (currentStage === 3) stage4();
+}
+
+// 啟動
+stage1();
+setInterval(nextStage, 10000);
+</script>
+
+</body>
 </html>
